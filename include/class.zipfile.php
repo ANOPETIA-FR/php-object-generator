@@ -11,6 +11,7 @@ class createZip  {
 	var $centralDirectory = array(); // central directory
 	var $endOfCentralDirectory = "\x50\x4b\x05\x06\x00\x00\x00\x00"; //end of Central directory record
 	var $oldOffset = 0;
+	var $paths=array();
 
 	/**
 	 * Function to create the directory where the file(s) will be unzipped
@@ -180,22 +181,22 @@ class createZip  {
 	 * @param multi-d array $package
 	 * @param array $paths
 	 */
-	function addPOGPackage($package, $paths=array())
+	function addPOGPackage($package)
 	{
 		
 		$i = 0;
 		foreach ($package as $key=>$value)
 		{
 			$path = '';
-			foreach ($paths as $p)
+			foreach ($this->paths as $p)
 			{
 				$path .= (($path == '') ? $p : "/$p");
 			}
 			if (strpos($key, ".") == false)
 			{
-				$paths[] = $key;
+				$this->paths[] = $key;
 				$this->addDirectory((($path == '') ? "$key/" : "$path/$key/"));
-				$this->addPOGPackage($package[$key], &$paths);
+				$this->addPOGPackage($package[$key]);
 			}
 			else
 			{
@@ -203,7 +204,7 @@ class createZip  {
 			}
 			if ($i == (sizeof($package)-1))
 			{
-				array_pop($paths);
+				array_pop($this->paths);
 			}
 			$i++;
 		}
